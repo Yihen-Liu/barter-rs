@@ -27,13 +27,14 @@ use crate::{
     execution::builder::{ExecutionBuild, ExecutionBuilder},
     system::builder::{AuditMode, SystemBuild},
 };
+use barter_execution::client::binance::BinanceExecutionClient;
 use barter_data::event::MarketEvent;
 use barter_execution::AccountEvent;
 use barter_instrument::{index::IndexedInstruments, instrument::InstrumentIndex};
 use futures::future::try_join_all;
 use rust_decimal::Decimal;
 use smol_str::SmolStr;
-use std::{fmt::Debug, sync::Arc};
+use std::{fmt::Debug, sync::Arc, time::Duration};
 
 /// Defines the interface and implementations for different types of market data sources
 /// that can be used in backtests.
@@ -213,6 +214,7 @@ where
             ExecutionBuilder::new(&args_constant.instruments),
             |builder, config| match config {
                 ExecutionConfig::Mock(mock_config) => builder.add_mock(mock_config, clock.clone()),
+                ExecutionConfig::Live(live_config) => builder.add_live::<BinanceExecutionClient>(live_config, Duration::from_secs(30)),
             },
         )?
         .build();

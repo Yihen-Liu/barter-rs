@@ -3,6 +3,7 @@
 /// Provides data structures for configuring various aspects of a trading system,
 /// including instruments and execution components.
 use barter_execution::client::mock::MockExecutionConfig;
+use barter_execution::client::binance::BinanceExecutionConfig;
 use barter_instrument::{
     Underlying,
     asset::{Asset, name::AssetNameExchange},
@@ -64,6 +65,9 @@ pub struct InstrumentConfig {
 pub enum ExecutionConfig {
     /// Mock execution configuration for backtesting
     Mock(MockExecutionConfig),
+
+    /// Binance execution configuration for real-time execution
+    Live(BinanceExecutionConfig),
 }
 
 impl From<InstrumentConfig> for Instrument<ExchangeId, Asset> {

@@ -17,6 +17,7 @@ use crate::{
 };
 use barter_data::streams::reconnect::stream::ReconnectingStream;
 use barter_execution::balance::Balance;
+use barter_execution::client::binance::BinanceExecutionClient;
 use barter_instrument::{
     Keyed,
     asset::{AssetIndex, ExchangeAsset, name::AssetNameInternal},
@@ -33,7 +34,7 @@ use derive_more::Constructor;
 use fnv::FnvHashMap;
 use futures::Stream;
 use serde::{Deserialize, Serialize};
-use std::{fmt::Debug, marker::PhantomData};
+use std::{fmt::Debug, marker::PhantomData, time::Duration};
 
 /// Defines how the `Engine` processes input events.
 ///
@@ -232,6 +233,9 @@ impl<'a, Clock, Strategy, Risk, MarketStream, GlobalData, FnInstrumentData>
                 |builder, config| match config {
                     ExecutionConfig::Mock(mock_config) => {
                         builder.add_mock(mock_config, clock.clone())
+                    }
+                    ExecutionConfig::Live(live_config) => {
+                        builder.add_live::<BinanceExecutionClient>(live_config, Duration::from_secs(30))
                     }
                 },
             )?
